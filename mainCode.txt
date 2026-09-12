@@ -1,0 +1,41 @@
+// C++ code
+//
+bool touched[3] = {false, false, false};
+
+void setup()
+{
+  pinMode(2, INPUT_PULLUP);
+  pinMode(3, INPUT_PULLUP);
+  pinMode(4, INPUT_PULLUP);
+  Serial.begin(9600);
+}
+
+void loop()
+{
+  if(digitalRead(2) == LOW){
+    if(touched[0] == false){
+      Serial.println("Tomori, te amo con toda mi alma");
+    }
+    touched[0] = true;
+  }else{
+    touched[0] = false;
+  }
+  
+  if(digitalRead(3) == LOW){
+    if(touched[1] == false){
+      Serial.println("Kazumi, te amo con toda mi alma");
+    }
+    touched[1] = true;
+  }else{
+    touched[1] = false;
+  }
+  
+  if(digitalRead(4) == LOW){
+    if(touched[2] == false){
+      Serial.println("Yukina, te amo con toda mi alma");
+    }
+    touched[2] = true;
+  }else{
+    touched[2] = false;
+  }
+}
