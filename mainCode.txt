@@ -1,41 +1,82 @@
-// C++ code
-//
-bool touched[3] = {false, false, false};
+const int PIN_A = 4;
+const int PIN_S = 5;
+const int PIN_W = 2;
+const int PIN_D = 3;
 
-void setup()
-{
-  pinMode(2, INPUT_PULLUP);
-  pinMode(3, INPUT_PULLUP);
-  pinMode(4, INPUT_PULLUP);
-  Serial.begin(9600);
+const int PIN_BUL = 7;
+const int PIN_INT = 9;
+const int PIN_EXT = 11;
+
+const unsigned long DEBOUNCE_TIME = 30;
+
+struct Button{
+  int pin;
+  bool lastReading;
+  bool readStable;
+  unsigned long lastChange;
+};
+
+Button buttons[] = {
+  {PIN_A, HIGH, HIGH, 0},
+  {PIN_S, HIGH, HIGH, 0},
+  {PIN_W, HIGH, HIGH, 0},
+  {PIN_D, HIGH, HIGH, 0},
+  {PIN_BUL, HIGH, HIGH, 0},
+  {PIN_INT, HIGH, HIGH, 0},
+  {PIN_EXT, HIGH, HIGH, 0}
+};
+
+void setup(){
+  Serial.begin(115400);
+
+  for(int i = 0; i < 7; i++){
+    pinMode(buttons[i].pin, INPUT_PULLUP);
+  }
 }
 
-void loop()
-{
-  if(digitalRead(2) == LOW){
-    if(touched[0] == false){
-      Serial.println("Tomori, te amo con toda mi alma");
-    }
-    touched[0] = true;
-  }else{
-    touched[0] = false;
+void sendButtonEvent(int index, bool pressed){
+  switch(index){
+    case 0:
+      Serial.println(pressed ? "A_DOWN" : "A_UP");
+      break;
+    case 1:
+      Serial.println(pressed ? "S_DOWN" : "S_UP");
+      break;
+    case 2:
+      Serial.println(pressed ? "W_DOWN" : "W_UP");
+      break;
+    case 3:
+      Serial.println(pressed ? "D_DOWN" : "D_UP");
+      break;
+    case 4:
+      if(pressed) Serial.println("BUL");
+      break;
+    case 5:
+      if(pressed) Serial.println("INT");
+      break;
+    case 6:
+      if(pressed) Serial.println("EXT");
+      break;
   }
-  
-  if(digitalRead(3) == LOW){
-    if(touched[1] == false){
-      Serial.println("Kazumi, te amo con toda mi alma");
+}
+
+void loop(){
+  for(int i = 0; i < 7; i++){
+    bool reading = digitalRead(buttons[i].pin);
+
+    if(reading != buttons[i].lastReading){
+      buttons[i].lastChange = millis();
     }
-    touched[1] = true;
-  }else{
-    touched[1] = false;
-  }
-  
-  if(digitalRead(4) == LOW){
-    if(touched[2] == false){
-      Serial.println("Yukina, te amo con toda mi alma");
+
+    if((millis() - buttons[i].lastChange) > DEBOUNCE_TIME){
+      if(reading != buttons[i].readStable){
+        buttons[i].readStable = reading;
+
+        bool pressed = (reading == LOW);
+
+        sendButtonEvent(i, pressed);
+      }
     }
-    touched[2] = true;
-  }else{
-    touched[2] = false;
+    buttons[i].lastReading = reading;
   }
 }
