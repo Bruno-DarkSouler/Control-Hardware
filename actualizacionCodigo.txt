@@ -1,0 +1,70 @@
+using System.Collections;
+using System.Collections.Generic;
+using UnityEditor.SearchService;
+using UnityEngine;
+using UnityEngine.SceneManagement;
+
+public class EndingScreen : MonoBehaviour
+{
+    public GameObject victoryScreen;
+    public TimeManager timeManager;
+    private bool playerInside = false;
+    private bool alreadyWon = false;
+    public int minuteOfWinning = 190;
+
+    void Start()
+    {
+        victoryScreen.SetActive(false);
+    }
+
+    void Update()
+    {
+        if(alreadyWon)
+        {
+            if (Input.GetKeyDown(KeyCode.E))
+            {
+                UnityEngine.SceneManagement.Scene currentScene = SceneManager.GetActiveScene();
+                SceneManager.LoadScene(currentScene.name);
+            }
+
+            if (Input.GetKeyDown(KeyCode.Escape))
+            {
+                Application.Quit();
+
+                #if UNITY_EDITOR
+                UnityEditor.EditorApplication.isPlaying = false;
+                #endif
+            }
+
+            return;
+        }
+
+
+        if(!playerInside) return;
+
+        if(timeManager.timePassed / 60 > minuteOfWinning) //instead of 60 it should be timeManager.timeMultiplier
+        {
+            alreadyWon = true;
+            victoryScreen.SetActive(true);
+        }
+
+    }
+
+    private void OnTriggerEnter2D(Collider2D collision)
+    {
+        if (collision.CompareTag("Player"))
+        {
+            playerInside = true;
+        }
+        Debug.Log("Final 1");
+    }
+
+    private void OnTriggerExit2D(Collider2D collision)
+    {
+        if (collision.CompareTag("Player"))
+        {
+            playerInside = false;
+        }
+        Debug.Log("Final 1");
+    }
+}
